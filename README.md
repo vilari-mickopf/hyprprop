@@ -11,6 +11,7 @@ xprop for Hyprland
 ```bash
 yay -S hyprprop-git
 ```
+or
 ```bash
 sudo make install
 ```
