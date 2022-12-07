@@ -5,7 +5,7 @@ xprop for Hyprland
 ## Dependencies
 - `hyprland` obviously
 - [hyprevents](https://github.com/vilari-mickopf/hyprevents) capture window changed events to rerun slurp
-- socat to connect hyprevents with hyprprop events
+- `socat` to connect hyprevents with hyprprop events
 - `slurp` to select an area on the screen
 
 ## Install
