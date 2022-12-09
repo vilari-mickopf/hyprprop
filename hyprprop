@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-socat -u UNIX-CONNECT:/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock \
-         EXEC:"hyprevents /usr/share/hyprprop/events_handler",nofork 2>/dev/null &
-
 prop() {
     HYPR_TREE=$(hyprctl clients -j)
 
@@ -16,7 +13,7 @@ prop() {
 
     SELECTION=$(cat .slurp_out)
     rm .slurp_out
-    [ -z "$SELECTION" ] && killall hyprevents && exit
+    [ -z "$SELECTION" ] && cleanup && exit
 
     # Extract the X, Y, Width, and Height from the selection
     X=$(echo $SELECTION | awk -F'[, x]' '{print $1}')
@@ -30,15 +27,30 @@ prop() {
     echo $HYPR_TREE | jq -r --argjson x $X --argjson y $Y --argjson w $W --argjson h $H --argjson i $WORKSPACE \
             '.[] | select(.workspace.id == $i and .at[0] == $x and .at[1] == $y and .size[0] == $w and .size[1] == $h)'
 
-    killall hyprevents
+    cleanup
     exit
 }
 
-handler() {
+cleanup() {
+    hyprevents -f /usr/share/hyprprop/event_handler -k
+}
+
+event_handler() {
     pkill slurp
     wait $PID 2>/dev/null
     prop
 }
 
-trap handler USR1
+terminate() {
+    pkill slurp
+    wait $PID 2>/dev/null
+    cleanup
+    exit
+}
+
+# Capture events on hyprland window/workspace change events
+hyprevents -f /usr/share/hyprprop/event_handler 2>/dev/null &
+trap event_handler USR1
+
+trap terminate SIGINT
 prop
