@@ -3,16 +3,19 @@
 prop() {
     HYPR_TREE=$(hyprctl clients -j)
 
-    echo $HYPR_TREE | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j | jq -r '.workspace.id')\)""| jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"'| slurp -r > .slurp_out 2> .slurp_error &
+    OUT_FILE=/tmp/hyprprop.out
+    ERROR_FILE=/tmp/hyprprop.error
+    echo $HYPR_TREE | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j | jq -r '.workspace.id')\)""| jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"'| slurp -r > $OUT_FILE 2> $ERROR_FILE &
     PID=$!
     wait $PID
 
-    ERROR=$(cat .slurp_error) # invalid box format: null,null nullxnull
-    rm .slurp_error
-    [ -n "$ERROR" ] && prop
+    ERROR=$(cat $ERROR_FILE)
+    rm $ERROR_FILE
 
-    SELECTION=$(cat .slurp_out)
-    rm .slurp_out
+    SELECTION=$(cat $OUT_FILE)
+    rm $OUT_FILE
+
+    [ -n "$ERROR" ] && prop
     [ -z "$SELECTION" ] && cleanup && exit
 
     # Extract the X, Y, Width, and Height from the selection
