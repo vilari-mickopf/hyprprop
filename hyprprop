@@ -5,7 +5,11 @@ prop() {
 
     OUT_FILE=/tmp/hyprprop.out
     ERROR_FILE=/tmp/hyprprop.error
-    echo $HYPR_TREE | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j | jq -r '.workspace.id')\)""| jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"'| slurp -r > $OUT_FILE 2> $ERROR_FILE &
+    echo $HYPR_TREE | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j \
+                                                              | jq -r '.workspace.id')\)"" \
+                    | jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' \
+                    | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
+                    | slurp -r > $OUT_FILE 2> $ERROR_FILE &
     PID=$!
     wait $PID
 
@@ -27,8 +31,12 @@ prop() {
     WORKSPACE=$(hyprctl activewindow -j | jq -r '.workspace.id')
 
     # Find the window matching the selection
-    echo $HYPR_TREE | jq -r --argjson x $X --argjson y $Y --argjson w $W --argjson h $H --argjson i $WORKSPACE \
-            '.[] | select(.workspace.id == $i and .at[0] == $x and .at[1] == $y and .size[0] == $w and .size[1] == $h)'
+    echo $HYPR_TREE | jq -r --argjson i $WORKSPACE \
+                            --argjson x $X --argjson y $Y \
+                            --argjson w $W --argjson h $H \
+             '.[] | select(.workspace.id == $i and
+                           .at[0] == $x and .at[1] == $y and
+                           .size[0] == $w and .size[1] == $h)'
 
     cleanup
     exit
