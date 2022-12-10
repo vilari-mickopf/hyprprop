@@ -19,15 +19,13 @@ prop() {
     SELECTION=$(cat $OUT_FILE)
     rm $OUT_FILE
 
-    [ -n "$ERROR" ] && prop
+    [ -n "$ERROR" ] && prop # invalid box format: null,null nullxnull
     [ -z "$SELECTION" ] && cleanup && exit
 
-    # Extract the X, Y, Width, and Height from the selection
     X=$(echo $SELECTION | awk -F'[, x]' '{print $1}')
     Y=$(echo $SELECTION | awk -F'[, x]' '{print $2}')
     W=$(echo $SELECTION | awk -F'[, x]' '{print $3}')
     H=$(echo $SELECTION | awk -F'[, x]' '{print $4}')
-
     WORKSPACE=$(hyprctl activewindow -j | jq -r '.workspace.id')
 
     # Find the window matching the selection
