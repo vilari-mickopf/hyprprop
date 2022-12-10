@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# default handlers for shellevents
+# default handlers for hyprevents
 #
 # override the function in your own events
 # file to provide a custom handler
