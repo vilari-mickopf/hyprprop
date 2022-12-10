@@ -1,37 +1,37 @@
 #!/usr/bin/env sh
 
 prop() {
-    HYPR_TREE=$(hyprctl clients -j)
+    hypr_tree=$(hyprctl clients -j)
 
-    OUT_FILE=/tmp/hyprprop.out
-    ERROR_FILE=/tmp/hyprprop.error
-    echo $HYPR_TREE | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j \
-                                                              | jq -r '.workspace.id')\)"" \
-                    | jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' \
-                    | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
-                    | slurp -r > $OUT_FILE 2> $ERROR_FILE &
+    out_file=/tmp/hyprprop.out
+    error_file=/tmp/hyprprop.error
+    echo "$hypr_tree" | jq -r ".[] | select(.workspace.id == "$(hyprctl activewindow -j \
+                                                                | jq -r '.workspace.id')\)"" \
+                      | jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' \
+                      | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
+                      | slurp -r > $out_file 2> $error_file &
     PID=$!
     wait $PID
 
-    ERROR=$(cat $ERROR_FILE)
-    rm $ERROR_FILE
+    error=$(cat $error_file)
+    rm $error_file
 
-    SELECTION=$(cat $OUT_FILE)
-    rm $OUT_FILE
+    selection=$(cat $out_file)
+    rm $out_file
 
-    [ -n "$ERROR" ] && prop # invalid box format: null,null nullxnull
-    [ -z "$SELECTION" ] && cleanup && exit
+    [ -n "$error" ] && prop # invalid box format: null,null nullxnull
+    [ -z "$selection" ] && cleanup && exit
 
-    X=$(echo $SELECTION | awk -F'[, x]' '{print $1}')
-    Y=$(echo $SELECTION | awk -F'[, x]' '{print $2}')
-    W=$(echo $SELECTION | awk -F'[, x]' '{print $3}')
-    H=$(echo $SELECTION | awk -F'[, x]' '{print $4}')
-    WORKSPACE=$(hyprctl activewindow -j | jq -r '.workspace.id')
+    x=$(echo "$selection" | awk -F'[, x]' '{print $1}')
+    y=$(echo "$selection" | awk -F'[, x]' '{print $2}')
+    w=$(echo "$selection" | awk -F'[, x]' '{print $3}')
+    h=$(echo "$selection" | awk -F'[, x]' '{print $4}')
+    workspace=$(hyprctl activewindow -j | jq -r '.workspace.id')
 
     # Find the window matching the selection
-    echo $HYPR_TREE | jq -r --argjson i $WORKSPACE \
-                            --argjson x $X --argjson y $Y \
-                            --argjson w $W --argjson h $H \
+    echo "$hypr_tree" | jq -r --argjson i "$workspace" \
+                              --argjson x "$x" --argjson y "$y" \
+                              --argjson w "$w" --argjson h "$h" \
              '.[] | select(.workspace.id == $i and
                            .at[0] == $x and .at[1] == $y and
                            .size[0] == $w and .size[1] == $h)'
