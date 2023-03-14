@@ -7,6 +7,7 @@ xprop for Hyprland
 - [hyprevents](https://github.com/vilari-mickopf/hyprevents) capture window changed events to rerun slurp
 - `socat` to connect hyprevents with hyprprop events
 - `slurp` to select an area on the screen
+- `jq` to parse hyprctl output
 
 ## Install
 ```bash
