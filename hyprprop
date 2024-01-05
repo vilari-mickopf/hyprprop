@@ -41,7 +41,7 @@ prop() {
 }
 
 cleanup() {
-    hyprevents -f /usr/share/hyprprop/event_handler -k
+    hyprevents -f $(dirname `dirname $0`)/share/hyprprop/event_handler -k
 }
 
 event_handler() {
@@ -58,7 +58,7 @@ terminate() {
 }
 
 # Capture events on hyprland window/workspace change events
-hyprevents -f /usr/share/hyprprop/event_handler 2>/dev/null &
+hyprevents -f $(dirname `dirname $0`)/share/hyprprop/event_handler 2>/dev/null &
 trap event_handler USR1
 
 trap terminate SIGINT
