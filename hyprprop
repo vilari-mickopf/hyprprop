@@ -1,4 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+
+EVENT_HANDLER="$(dirname "$0")/event_handler"
 
 prop() {
     hypr_tree=$(hyprctl clients -j)
@@ -41,7 +43,7 @@ prop() {
 }
 
 cleanup() {
-    hyprevents -f /usr/share/hyprprop/event_handler -k
+    hyprevents -f "$EVENT_HANDLER" -k
 }
 
 event_handler() {
@@ -58,7 +60,7 @@ terminate() {
 }
 
 # Capture events on hyprland window/workspace change events
-hyprevents -f /usr/share/hyprprop/event_handler 2>/dev/null &
+hyprevents -f "$EVENT_HANDLER" 2>/dev/null &
 trap event_handler USR1
 
 trap terminate SIGINT
