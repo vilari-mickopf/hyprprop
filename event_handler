@@ -15,7 +15,6 @@ event_workspace() {
 
 event_focusedmon() {
   : # MONNAME WORKSPACENAME
-  pkill -USR1 -f hyprprop
 }
 
 event_activewindow() {
