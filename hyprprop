@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-EVENT_HANDLER="/usr/share/hyprprop/event_handler"
+EVENT_HANDLER="$(dirname "$0")/event_handler"
 
 prop() {
     hypr_tree=$(hyprctl clients -j)
