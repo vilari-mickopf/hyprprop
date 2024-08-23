@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
+HYPRPROP_PID='/tmp/hyprprop.pid'
+echo $$ > "$HYPRPROP_PID"
+
 EVENT_HANDLER="$(dirname "$0")/event_handler"
 
 prop() {
     out_file=/tmp/hyprprop.out
     error_file=/tmp/hyprprop.error
-    visible_workspaces=$(hyprctl monitors -j | jq -r '.[].activeWorkspace.id' | jq -s .)
+    # visible_workspaces=$(hyprctl monitors -j | jq -r '.[].activeWorkspace.id' | jq -s .)
+    visible_workspaces=$(hyprctl monitors -j \
+                        | jq -r '[.[].activeWorkspace.id,
+                                  .[].specialWorkspace.id | select(. != null and . != 0)]
+                                 | flatten
+                                 | unique')
 
     hyprctl clients -j | jq --argjson visibleWorkspaces "$visible_workspaces" \
                             -r '.[] | select(.workspace.id | IN($visibleWorkspaces[]))
@@ -46,17 +54,18 @@ prop() {
 
 cleanup() {
     hyprevents -f "$EVENT_HANDLER" -k
+    rm "$HYPRPROP_PID"
 }
 
 event_handler() {
     pkill slurp
-    wait $PID 2>/dev/null
+    wait "$PID" 2>/dev/null
     prop
 }
 
 terminate() {
     pkill slurp
-    wait $PID 2>/dev/null
+    wait "$PID" 2>/dev/null
     cleanup
     exit
 }

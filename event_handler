@@ -8,13 +8,16 @@
 # comments inside each handler list the variables
 # that are set when the handler is invoked
 
+HYPRPROP_PID='/tmp/hyprprop.pid'
+
 event_workspace() {
   : # WORKSPACENAME
-  pkill -USR1 -f hyprprop
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_focusedmon() {
   : # MONNAME WORKSPACENAME
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_activewindow() {
@@ -23,27 +26,32 @@ event_activewindow() {
 
 event_fullscreen() {
   : # ENTER (0 if leaving fullscreen, 1 if entering)
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_monitorremoved() {
   : # MONITORNAME
-  # pkill -USR1 -f hyprprop
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_monitoradded() {
   : # MONITORNAME
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_createworkspace() {
   : # WORKSPACENAME
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_destroyworkspace() {
   : # WORKSPACENAME
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_moveworkspace() {
   : # WORKSPACENAME MONNAME
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_activelayout() {
@@ -52,17 +60,17 @@ event_activelayout() {
 
 event_openwindow() {
   : # WINDOWADDRESS WORKSPACENAME WINDOWCLASS WINDOWTITLE
-  pkill -USR1 -f hyprprop
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_closewindow() {
   : # WINDOWADDRESS
-  pkill -USR1 -f hyprprop
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_movewindow() {
   : # WINDOWADDRESS WORKSPACENAME
-  pkill -USR1 -f hyprprop
+  kill -USR1 "$(cat "$HYPRPROP_PID")"
 }
 
 event_openlayer() {
