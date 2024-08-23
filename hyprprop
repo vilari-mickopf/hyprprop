@@ -3,16 +3,15 @@
 EVENT_HANDLER="$(dirname "$0")/event_handler"
 
 prop() {
-    hypr_tree=$(hyprctl clients -j)
-
     out_file=/tmp/hyprprop.out
     error_file=/tmp/hyprprop.error
     visible_workspaces=$(hyprctl monitors -j | jq -r '.[].activeWorkspace.id' | jq -s .)
-    echo "$hypr_tree" | jq --argjson visibleWorkspaces "$visible_workspaces" \
-                               '.[] | select(.workspace.id | IN($visibleWorkspaces[]))' \
-                      | jq -r ".at,.size" | jq -s "add" | jq '_nwise(4)' \
-                      | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
-                      | slurp -r > $out_file 2> $error_file &
+
+    hyprctl clients -j | jq --argjson visibleWorkspaces "$visible_workspaces" \
+                            -r '.[] | select(.workspace.id | IN($visibleWorkspaces[]))
+                                    | [.at[0], .at[1], .size[0], .size[1]]
+                                    | "\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
+                       | slurp -r > $out_file 2> $error_file &
     PID=$!
     wait $PID
 
@@ -25,18 +24,21 @@ prop() {
     [ -n "$error" ] && prop # invalid box format: null,null nullxnull
     [ -z "$selection" ] && cleanup && exit
 
-    echo "$selection"
-
     x=$(echo "$selection" | awk -F'[, x]' '{print $1}')
     y=$(echo "$selection" | awk -F'[, x]' '{print $2}')
     w=$(echo "$selection" | awk -F'[, x]' '{print $3}')
     h=$(echo "$selection" | awk -F'[, x]' '{print $4}')
 
-    # Find the window matching the selection
-    echo "$hypr_tree" | jq -r --argjson x "$x" --argjson y "$y" \
-                              --argjson w "$w" --argjson h "$h" \
-                         '.[] | select(.at[0] == $x and .at[1] == $y and
-                                       .size[0] == $w and .size[1] == $h)'
+    hyprctl clients -j | jq --argjson visibleWorkspaces "$visible_workspaces" \
+                            --argjson x "$x" --argjson y "$y" \
+                            --argjson w "$w" --argjson h "$h" \
+                            '.[] | select(.workspace.id | IN($visibleWorkspaces[]))
+                                 | select(.at | type == "array")
+                                 | select(.size | type == "array")
+                                 | select(.at[0] == ($x | tonumber)
+                                 and .at[1] == ($y | tonumber)
+                                 and .size[0] == ($w | tonumber)
+                                 and .size[1] == ($h | tonumber))'
 
     cleanup
     exit
