@@ -24,3 +24,11 @@ Just run
 hyprprop
 ```
 and select desired window
+
+## Optional special workspace case
+Currently, there is no event triggered when a special workspace is opened or closed, so the only way to force slurp to redraw automatically is to add keybind for sending the signal to the hyprprop using the same key as togglespecialworkspace:
+```
+bind = $mod, <KEY>, togglespecialworkspace,
+bind = $mod, <KEY>, exec, kill -USR1 "$(cat /tmp/hyprprop.pid)"
+```
+By binding both commands to the same key, Hyprland will execute them sequentially whenever the key is pressed.
