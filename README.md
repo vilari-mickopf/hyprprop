@@ -8,6 +8,7 @@ xprop for Hyprland
 - `socat` to connect hyprevents with hyprprop events
 - `slurp` to select an area on the screen
 - `jq` to parse hyprctl output
+- `make`
 
 ## Install
 ```bash
