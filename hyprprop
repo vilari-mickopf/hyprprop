@@ -16,7 +16,7 @@ prop() {
                                  | unique')
 
     hyprctl clients -j | jq --argjson visibleWorkspaces "$visible_workspaces" \
-                            -r '.[] | select(.workspace.id | IN($visibleWorkspaces[]))
+                            -r '.[] | select([.workspace.id] | inside($visibleWorkspaces))
                                     | [.at[0], .at[1], .size[0], .size[1]]
                                     | "\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
                        | slurp -r > $out_file 2> $error_file &
@@ -40,7 +40,7 @@ prop() {
     hyprctl clients -j | jq --argjson visibleWorkspaces "$visible_workspaces" \
                             --argjson x "$x" --argjson y "$y" \
                             --argjson w "$w" --argjson h "$h" \
-                            '.[] | select(.workspace.id | IN($visibleWorkspaces[]))
+                            '.[] | select([.workspace.id] | inside($visibleWorkspaces))
                                  | select(.at | type == "array")
                                  | select(.size | type == "array")
                                  | select(.at[0] == ($x | tonumber)
