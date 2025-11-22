@@ -41,6 +41,7 @@ prop() {
                             --argjson x "$x" --argjson y "$y" \
                             --argjson w "$w" --argjson h "$h" \
                             '.[] | select([.workspace.id] | inside($visibleWorkspaces))
+                                 | select(.hidden == false)
                                  | select(.at | type == "array")
                                  | select(.size | type == "array")
                                  | select(.at[0] == ($x | tonumber)
